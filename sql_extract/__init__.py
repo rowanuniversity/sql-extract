@@ -5,6 +5,7 @@ Utility functions and class for sql-extract
 import sys
 import os
 import csv
+import openpyxl
 import logging
 import argparse
 from profpy.db import get_cx_oracle_connection
@@ -82,6 +83,24 @@ class SqlExtractHandler(object):
             yield dict(zip(self.columns, row))
 
 
+class CsvToXlsxHandler(object):
+    """
+    Class to handle converting CSV to XLSX.
+    """
+    def __init__(self, in_csv_file, out_xlsx_file=None):
+        self.row_count = 0
+        self.xlsx_file = out_xlsx_file if out_xlsx_file else os.path.splitext(in_csv_file)[0] + ".xlsx"
+        self.wb = openpyxl.Workbook()
+        ws = self.wb.active
+        with open(in_csv_file, 'r') as csvf:
+            reader = csv.reader(csvf)
+            for r, row in enumerate(reader, start=1):
+                for c, val in enumerate(row, start=1):
+                    ws.cell(row=r, column=c).value = val
+                self.row_count += 1
+        self.wb.save(self.xlsx_file)
+
+
 def _validate_quote_char(in_quote_char):
     """
     Validator function for the quote character command line argument
@@ -124,7 +143,6 @@ def with_cmd_line_args(f):
         return f(p.parse_args(), *args, **kwargs)
     return wrapper
 
-
 @with_cmd_line_args
 def main(cmd_line_args):
     if not (cmd_line_args.login and cmd_line_args.password):
@@ -150,3 +168,32 @@ def main(cmd_line_args):
         finally:
             connection.close()
             del connection
+
+def with_xlsx_cmd_line_args(f):
+    """
+    Decorator that passes in command line arguments for the sql-extract tool to the decorated function
+    :param f: The function that will receive the command line arguments (function)
+    :return:  The decorated function                                    (function)
+    """
+    def wrapper(*args, **kwargs):
+        p = argparse.ArgumentParser()
+        p.add_argument("filename", help="CSV to be converted to XLSX")
+        p.add_argument("-o", "--outfile", help="Output XLSX file name", default=None)
+        return f(p.parse_args(), *args, **kwargs)
+    return wrapper
+
+@with_xlsx_cmd_line_args
+def csv2xlsx(cmd_line_args):
+    if not (cmd_line_args.filename):
+        logging.error("Must specify input CSV file.")
+    else:
+        logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO").upper())
+        handler = CsvToXlsxHandler(cmd_line_args.filename, cmd_line_args.outfile)
+        logging.info(
+            "{0} {1} {2}".format(
+                os.path.splitext(cmd_line_args.filename)[0].ljust(35),
+                str(handler.row_count).rjust(7),
+                "records processed"
+            )
+        )
+

@@ -17,12 +17,12 @@ def requirements():
 
 setup(
     name="sql_extract",
-    version="0.1.4",
+    version="0.2",
     python_requires=">=3.6.7",
     packages=[
         "sql_extract",
     ],
-    scripts=["bin/sql-extract"],
+    scripts=["bin/sql-extract", "bin/csv2xlsx"],
     url="https://github.com/rowanuniversity/sql-extract",
     license="MIT",
     author="John Reiser, Connor Hornibrook",

@@ -1,1 +1,2 @@
 profpy>=2.2.2
+openpyxl>3
