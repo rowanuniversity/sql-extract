@@ -67,11 +67,11 @@ class SqlExtractHandler(object):
         Writes the results of the query to file
         """
         with open(self.csv_file, 'w') as csv_handler:
-            self.writer = csv.DictWriter(csv_handler, fieldnames=self.columns, quoting=self.quoting,
+            writer = csv.DictWriter(csv_handler, fieldnames=self.columns, quoting=self.quoting,
                                             dialect="local_custom")
-            self.writer.writeheader()
+            writer.writeheader()
             for csv_row in self.row_generator():
-                self.writer.writerow(csv_row)
+                writer.writerow(csv_row)
                 self.row_count += 1    
 
 
@@ -84,7 +84,8 @@ class SqlExtractHandler(object):
                 self.execute(self.sql, self.binds)
             else:
                 self.execute(self.sql)
-            self.columns = [str(c[0]).lower() for c in self.cursor.description]
+            self.columns = [str(c[0]) for c in self.cursor.description]
+            
         except Exception as e:
             logging.debug(str(e))
             logging.debug(self.sql)
@@ -234,6 +235,23 @@ def _validate_sql_file(in_sql_file):
     else:
         return in_sql_file
 
+
+def get_sql_extract_argparser():
+    """
+    Create an argparser for sql-extract
+    """
+    p = argparse.ArgumentParser()
+    p.add_argument("filename", nargs="?", type=_validate_sql_file, help="SQL query to be exported as CSV")
+    p.add_argument("-o", "--outfile", help="output file name")
+    p.add_argument("-d", "--delimiter", help="CSV delimiter character")
+    p.add_argument("-c", "--quotechar", type=_validate_quote_char, help="CSV quoting character")
+    p.add_argument("-l", "--login", type=str, default=os.environ.get("full_login"), help="Optional Oracle login string, defaults to look for an environment variable called \"full_login\".")
+    p.add_argument("-p", "--password", type=str, default=os.environ.get("db_password"), help="Optional Oracle password, defaults to look for an environment variable called \"db_password\".")
+    p.add_argument("-b", "--bind-variables", nargs="*", help="Optional named bind parameters. Enter as param1=value1 param2=value2")
+    p.add_argument("-t", "--text", nargs="+", help="SQL query as text (instead of file). If a filename is specified, this argument will be ignored.")
+    p.add_argument("positional_variables", nargs="*", help="Positional bind parameters to be passed to SQL file. If named bind variables (-b) are specified, this argument will be ignored.")
+    return p
+
 def with_cmd_line_args(f):
     """
     Decorator that passes in command line arguments for the sql-extract tool to the decorated function
@@ -241,16 +259,7 @@ def with_cmd_line_args(f):
     :return:  The decorated function                                    (function)
     """
     def wrapper(*args, **kwargs):
-        p = argparse.ArgumentParser()
-        p.add_argument("filename", nargs="?", type=_validate_sql_file, help="SQL query to be exported as CSV")
-        p.add_argument("-o", "--outfile", help="output file name")
-        p.add_argument("-d", "--delimiter", help="CSV delimiter character")
-        p.add_argument("-c", "--quotechar", type=_validate_quote_char, help="CSV quoting character")
-        p.add_argument("-l", "--login", type=str, default=os.environ.get("full_login"), help="Optional Oracle login string, defaults to look for an environment variable called \"full_login\".")
-        p.add_argument("-p", "--password", type=str, default=os.environ.get("db_password"), help="Optional Oracle password, defaults to look for an environment variable called \"db_password\".")
-        p.add_argument("-b", "--bind-variables", nargs="*", help="Optional named bind parameters. Enter as param1=value1 param2=value2")
-        p.add_argument("-t", "--text", nargs="+", help="SQL query as text (instead of file). If a filename is specified, this argument will be ignored.")
-        p.add_argument("positional_variables", nargs="*", help="Positional bind parameters to be passed to SQL file. If named bind variables (-b) are specified, this argument will be ignored.")
+        p = get_sql_extract_argparser()
         return f(p.parse_args(), *args, **kwargs)
     return wrapper
 

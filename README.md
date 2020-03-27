@@ -2,7 +2,7 @@
 Exports the results of Oracle sql code contained in a .sql file out to a csv file. 
 
 ## Usage
-```bash
+```shell script
 # with input file
 sql-extract in_sql_file.sql -o output_file.csv
 
@@ -29,6 +29,11 @@ sql-extract -h
 | -b, --bind-variables | Any named bind parameters in the ```.sql``` file, must follow param=value convention | list | no |
 | positional_variables       | any positional variables in the ```.sql``` file | list   | no       |
 
+## Unit Testing
+
+```shell script
+./unittests.py
+```
 
 ### Configuration
 Store your Oracle login and password in ```full_login``` and ```db_password``` environment variables, respectively. Otherwise,

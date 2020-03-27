@@ -17,7 +17,7 @@ def requirements():
 
 setup(
     name="sql_extract",
-    version="0.3.1",
+    version="0.3.2",
     python_requires=">=3.6.7",
     packages=[
         "sql_extract",
