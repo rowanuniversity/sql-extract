@@ -8,7 +8,9 @@ def read(file_name):
 
 
 def requirements():
-    with open(str(pathlib.PurePath(__file__).parent / "requirements.txt"), "r") as req_file:
+    with open(
+        str(pathlib.PurePath(__file__).parent / "requirements.txt"), "r"
+    ) as req_file:
         out = []
         for line in req_file.readlines():
             out.append(line.replace("\n", ""))
@@ -17,11 +19,9 @@ def requirements():
 
 setup(
     name="sql_extract",
-    version="0.3.2",
+    version="0.3.3",
     python_requires=">=3.6.7",
-    packages=[
-        "sql_extract",
-    ],
+    packages=["sql_extract",],
     scripts=["bin/sql-extract", "bin/csv2xlsx"],
     url="https://github.com/rowanuniversity/sql-extract",
     license="MIT",
