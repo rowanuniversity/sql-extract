@@ -3,7 +3,6 @@
 Utility functions and class for sql-extract
 """
 import sys
-import io
 import os
 import re
 import csv
@@ -11,7 +10,7 @@ import openpyxl
 import logging
 import argparse
 from profpy.db import get_cx_oracle_connection
-from cx_Oracle import DatabaseError
+from oracledb import DatabaseError
 
 
 class SqlExtractHandler(object):
