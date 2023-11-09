@@ -19,7 +19,7 @@ def requirements():
 
 setup(
     name="sql_extract",
-    version="0.3.3",
+    version="0.3.4",
     python_requires=">=3.6.7",
     packages=["sql_extract",],
     scripts=["bin/sql-extract", "bin/csv2xlsx"],
