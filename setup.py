@@ -19,9 +19,11 @@ def requirements():
 
 setup(
     name="sql_extract",
-    version="0.3.4",
+    version="0.3.5",
     python_requires=">=3.6.7",
-    packages=["sql_extract",],
+    packages=[
+        "sql_extract",
+    ],
     scripts=["bin/sql-extract", "bin/csv2xlsx"],
     url="https://github.com/rowanuniversity/sql-extract",
     license="MIT",
