@@ -27,6 +27,7 @@ sql-extract -h
 | -o, --outfile   | output ```.csv``` file name               | string | no       |
 | -d, --delimiter | ```.csv``` delimiter                       | string | no       |
 | -c, --quotechar | ```.csv``` quote character                 | string | no       |
+| -i, --heading   | ```.csv``` include column headings Y/N     | string | no       |
 | -l, --login | Oracle login string                 | string | no       |
 | -p, --password | Oracle password                 | string | no       |
 | -t, --text | SQL query text (instead of file) | string | no |

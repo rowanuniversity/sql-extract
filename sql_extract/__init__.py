@@ -28,6 +28,7 @@ class SqlExtractHandler(object):
         in_positionals=None,
         in_named=None,
         in_text=None,
+        in_heading='Y',
     ):
         """
         Constructor
@@ -39,6 +40,7 @@ class SqlExtractHandler(object):
         :param in_positions:         Any pos. variables for the sql statement (list)
         :param in_named:             Any named bind parameters                (list)
         :param in_text:              SQL query text (in place of file)        (str)
+        :param in_heading:           Include column headings row              (str)
         """
 
         # configure the appropriate bind variables and sql string
@@ -75,6 +77,9 @@ class SqlExtractHandler(object):
         else:
             self.dialect.quote_character = in_quot
             self.quoting = csv.QUOTE_NONNUMERIC
+            
+        # include column headings
+        self.in_heading = in_heading
 
         # register the dialect
         csv.register_dialect(
@@ -103,7 +108,8 @@ class SqlExtractHandler(object):
             quoting=self.quoting,
             dialect="local_custom",
         )
-        writer.writeheader()
+        if self.in_heading=="Y":
+            writer.writeheader()
         for csv_row in self.row_generator():
             writer.writerow(csv_row)
             self.row_count += 1
@@ -298,6 +304,7 @@ def get_sql_extract_argparser():
         "-o", "--outfile", help="output file name", type=str,
     )
     p.add_argument("-d", "--delimiter", help="CSV delimiter character")
+    p.add_argument("-i", "--headings", type=str, default="Y", help="Include column headings")
     p.add_argument(
         "-c", "--quotechar", type=_validate_quote_char, help="CSV quoting character"
     )
@@ -374,6 +381,7 @@ def main(cmd_line_args):
                 in_positionals=cmd_line_args.positional_variables,
                 in_named=cmd_line_args.bind_variables,
                 in_text=cmd_line_args.text,
+                in_heading=cmd_line_args.headings,
             )
             in_display_path = (
                 os.path.splitext(cmd_line_args.filename)[0].ljust(35)
